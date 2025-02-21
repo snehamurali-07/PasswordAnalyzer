@@ -1,7 +1,7 @@
+import tkinter as tk
 import re
 
 def analyze_password_strength(password):
-    # Initialize the score
     score = 0
     length_criteria = len(password) >= 8
     uppercase_criteria = bool(re.search(r'[A-Z]', password))
@@ -10,31 +10,19 @@ def analyze_password_strength(password):
     symbol_criteria = bool(re.search(r'[!@#$%^&*(),.?":{}|<>]', password))
     common_patterns = ["123456", "password", "qwerty", "111111", "abc123"]
 
-    # Check length
     if length_criteria:
         score += 1
-
-    # Check for uppercase letters
     if uppercase_criteria:
         score += 1
-
-    # Check for lowercase letters
     if lowercase_criteria:
         score += 1
-
-    # Check for digits
     if digit_criteria:
         score += 1
-
-    # Check for symbols
     if symbol_criteria:
         score += 1
-
-    # Check for common patterns
     if any(pattern in password for pattern in common_patterns):
-        score -= 2  # Deduct points for common patterns
+        score -= 2
 
-    # Provide feedback based on the score
     feedback = ""
     if score <= 1:
         feedback = "Very Weak"
@@ -49,23 +37,66 @@ def analyze_password_strength(password):
 
     return score, feedback
 
-if __name__ == "__main__":
-    password = input("Enter your password to analyze: ")
+def analyze_password(event=None):
+    password = entry.get()
     score, feedback = analyze_password_strength(password)
-    print(f"Password Score: {score}")
-    print(f"Password Strength: {feedback}")
-
+    
+    result_message = f"Password Score: {score}\nPassword Strength: {feedback}\n"
+    
     if score < 4:
-        print("Consider the following to improve your password:")
+        result_message += "Consider the following to improve your password:\n"
         if not re.search(r'[A-Z]', password):
-            print("- Add at least one uppercase letter.")
+            result_message += "- Add at least one uppercase letter.\n"
         if not re.search(r'[a-z]', password):
-            print("- Add at least one lowercase letter.")
+            result_message += "- Add at least one lowercase letter.\n"
         if not re.search(r'\d', password):
-            print("- Add at least one digit.")
+            result_message += "- Add at least one digit.\n"
         if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-            print("- Add at least one special character.")
+            result_message += "- Add at least one special character.\n"
         if len(password) < 8:
-            print("- Make your password at least 8 characters long.")
+            result_message += "- Make your password at least 8 characters long.\n"
         if any(pattern in password for pattern in ["123456", "password", "qwerty", "111111", "abc123"]):
-            print("- Avoid common patterns like '123456', 'password', 'qwerty', etc.")
+            result_message += "- Avoid common patterns like '123456', 'password', 'qwerty', etc.\n"
+
+    # Update the result label with the analysis result
+    result_label.config(text=result_message)
+
+def toggle_password_visibility():
+    if entry.cget('show') == '*':
+        entry.config(show='')
+        toggle_button.config(text='Hide Password')
+    else:
+        entry.config(show='*')
+        toggle_button.config(text='Show Password')
+
+# Create the main window
+root = tk.Tk()
+root.title("Password Analyzer")
+root.geometry("600x400")
+root.configure(bg='light sky blue')
+
+# Create a label
+label = tk.Label(root, text="Enter your password:", bg='light sky blue', font=("Arial", 12))
+label.pack(pady=10)
+
+# Create an entry widget for password input
+entry = tk.Entry(root, show='*', width=30)
+entry.pack(pady=10)
+
+# Create a button to toggle password visibility
+toggle_button = tk.Button(root, text='Show Password', command=toggle_password_visibility, bg='blue', fg='white')
+toggle_button.pack(pady=5)
+
+# Create a button to analyze the password
+analyze_button = tk.Button(root, text="Analyze Password", command=analyze_password, bg='blue', fg='white')
+analyze_button.pack(pady=20)
+
+# Create a label to display the results
+result_label = tk.Label(root, text="", bg='light sky blue', font=("Arial", 12))
+result_label.pack(pady=10)
+
+# Bind the ENTER key to analyze the password
+root.bind('<Return>', analyze_password)
+
+# Start the GUI event loop
+root.mainloop()
